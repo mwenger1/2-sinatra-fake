@@ -63,10 +63,9 @@
         <section>
         <h3>Tonight's Gameplan</h3>
         <ul>
-          <li>Icebreaker to get to know each other</li>
-          <li>PRESENTATION: Kicking Off a New Project</li>
-          <li>Gem "Show and Tell"</li>
-          <li>Ask the group anything</li>
+          <li>Icebreaker: This Month I Learned</li>
+          <li>PRESENTATION: Feature Testing with a Sinatra Fake</li>
+          <li>Open Conversation: Ask the group anything</li>
           <li>Wrap up around 8:45. Can continue the conversation at the bar downstairs</li>
         </ul>
         </section>
@@ -74,118 +73,85 @@
         <h3>Ice Breaker Questions</h3>
         <ul>
           <li>What's your name?</li>
-          <li>What do you do?</li>
-          <li>Programming Experience<br><small>(i.e "Just graduated dev camp" OR "Been writing Ruby on Rails for 20+ years")</small></li>
+          <li>What's your story? (job, technology stack, open source)</li>
           <li>TMIL - "This Month I Learned"</li>
         </ul>
         </section>
         <section data-markdown>
           <script type="text/template">
-            ## Kick Off a New Project
-            ```
-            rails new <project>
-            ```
-              * Ask questions at any point
-              * I will email everyone the presentation link
+            ### External Services
+            ![](http://d1avok0lzls2w.cloudfront.net/img_uploads/apis-for-marketers.png)
             </script>
           </section>
         <section data-markdown>
           <script type="text/template">
-            ### Jumpstart A Blank Canvas
-
-
-            * Grab my standard laundry list of gems
-            * Automate default steps
-            </script>
-          </section>
+            ### Test Driven Development
+            ![](http://media.tumblr.com/tumblr_ljranpFdZV1qargzy.png)
+          </script>
+        </section>
 
         <section data-markdown>
           <script type="text/template">
-            ### <a href="http://guides.rubyonrails.org/rails_application_templates.html" target="_blank">Rails Application Template</a>
-
-            Application templates are simple Ruby files containing DSL for adding gems/initializers etc. to your freshly created Rails project or an existing Rails project.
-            ```
-            rails new blog -m ~/template.rb
-            ```
-
+            ### Benefits of Simulating an External Service
+            * No concerns about api quotas
+            * Work Offline
+            * Speed
             </script>
           </section>
 
         <section data-markdown>
           <script type="text/template">
-            ### <a href="https://gist.github.com/mwenger1/b85157404e2cad583c5b" target="_blank">My Initial Template</a>
-
+            ### Getting Started
+            First make sure all external calls are intercepted
+            ```ruby
+            # spec/spec_helper.rb
+            require 'webmock/rspec'
+            WebMock.disable_net_connect!(allow_localhost: true)
             ```
-            # template.rb
-
-            gem_group :development do
-              gem 'better_errors'
-              gem 'binding_of_caller'
-              gem 'rails-erd'
-              gem 'meta_request'
-            end
-
-            gem_group :development, :test do
-              gem 'rspec-rails'
-              gem 'pry-rails'
-              gem 'pry-debugger'
-              gem 'dotenv-rails'
-              gem 'guard'
-              gem 'guard-rspec'
-              gem 'factory_girl_rails'
-              gem 'faker'
-            end
-
-            gem_group  :test do
-              gem 'capybara'
-            end
-
-            rails generate rspec:install
-
-            after_bundle do
-              git :init
-              git add: "."
-              git commit: %Q{ -m 'Initial commit' }
-            end
-            ```
-            </script>
-          </section>
-
-        <section data-markdown>
-          <script type="text/template">
-            ### Debug in the Browser
-
-            ```
-              gem 'better_errors'
-              gem 'binding_of_caller'
-            ```
-            ![](https://camo.githubusercontent.com/3fa6840d5e20236b4f768d6ed4b42421ba7c2f21/68747470733a2f2f692e696d6775722e636f6d2f367a42474141622e706e67)
 
             </script>
           </section>
 
         <section data-markdown>
           <script type="text/template">
-          ### <a href="https://github.com/dejan/rails_panel" target="_blank">Rails Panel</a>
-
+            ### Stubbing the Responses
+            If small number, you could manually set
+            ```ruby
+            config.before(:each) do
+              stub_request(:get, /api.facebook.com/).
+                with(headers: {'Accept'=>'*/*'}).
+                to_return(status: 200, body: "payload", headers: {})
+              end
+            end`
             ```
-            gem 'meta_request'
-            ```
-            ![](https://cloud.githubusercontent.com/assets/4494/3090049/917e5378-e586-11e3-9bd4-1db232968126.png)
-
             </script>
           </section>
 
         <section data-markdown>
           <script type="text/template">
-            ### Debug in the Command Line
+          ### VCR Gem
+          Record actual API calls and playback the responses
+          ![](http://media.tumblr.com/59ece9aa17aad6c8f3c303d5e1ad7e39/tumblr_inline_n2hv8b9lO41s9wfrd.png)
+            </script>
+          </section>
 
-            ```
-              gem 'pry-rails'
-              gem 'pry-debugger'
-            ```
-            ![](http://blog.zamith.pt/images/pry.png)
+        <section data-markdown>
+          <script type="text/template">
+            ### Sinatra Fake
+            * Gave us the greatest control of configuring every call's payload
+            * Really helpful to have json fixtures in the project for reference
+            </script>
+          </section>
 
+        <section data-markdown>
+          <script type="text/template">
+            ### Setting up the Fake
+Use Webmock gem to intercept calls and point them at your Fake class
+```ruby
+  config.before(:each) do
+    stub_request(:any, /api.athenahealth.com/).to_rack(FakeAthena)
+  end
+```
             </script>
           </section>
 
