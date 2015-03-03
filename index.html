@@ -130,7 +130,7 @@
         <section data-markdown>
           <script type="text/template">
           ### VCR Gem
-          Record actual API calls and playback the responses
+          Record real API calls as cassettes and playback responses
           ![](http://media.tumblr.com/59ece9aa17aad6c8f3c303d5e1ad7e39/tumblr_inline_n2hv8b9lO41s9wfrd.png)
             </script>
           </section>
@@ -146,7 +146,7 @@
         <section data-markdown>
           <script type="text/template">
             ### Setting up the Fake
-Use Webmock gem to intercept calls and point them at your Fake class
+Use Webmock gem to intercept calls and redirect them to your Fake class
 ```ruby
   config.before(:each) do
     stub_request(:any, /api.athenahealth.com/).to_rack(FakeAthena)
@@ -157,165 +157,112 @@ Use Webmock gem to intercept calls and point them at your Fake class
 
         <section data-markdown>
           <script type="text/template">
-          ### <a href="https://github.com/bkeepers/dotenv" target="_blank">Environment Variables</a>
+            ### Setting up the Fake
+Create your sinatra app
+```ruby
 
-            ```
-            gem 'dotenv-rails'
-            ```
+require "sinatra/base"
+require "sinatra/namespace"
 
-            ```
-              # .env file
-              GOOGLE_MAPS_KEY=asdfhkjasefea
-              GOOGLE_MAPS_SECRET=a98324jase93
-              FACEBOOK_KEY=ejawerjes2ase32
-              FACEBOOK_PASSWORD=j3ifdsjfasdfas
-            ```
-
+class FakeAthena < Sinatra::Base
+  register Sinatra::Namespace
+end
+```
             </script>
           </section>
 
         <section data-markdown>
           <script type="text/template">
-            ### Test Driven Development (TDD)
-            ![](http://cristinoconnor.com/wp-content/uploads/2013/08/terminal-output.png)
+            ### Setting up the Fake
+Set up endpoints and fixtures as needed by tests
+```ruby
+    #spec/support/fake_athena.rb
+    get "/providers/:provider_id" do
+      json_response 200, "provider.json"
+    end
+
+    private
+
+    def json_response(response_code, file_name)
+      content_type :json
+      status response_code
+      File.open(File.dirname(__FILE__) + "/../fixtures/" + file_name, "rb").read
+    end
+
+    #spec/fixtures/provider.json
+[{
+    "firstname": "Marc",
+    "specialty": "Family Medicine",
+    "acceptingnewpatients": "false",
+    "providertypeid": "MD",
+    "billable": "true",
+    "ansinamecode": "Allopathic & Osteopathic Physicians : Family Practice (207Q00000X)",
+    "lastname": "Feingold",
+    "providerid": "71",
+    "ansispecialtycode": "207Q00000X",
+    "hideinportal": "false",
+    "entitytype": "Person",
+    "npi": "1306805015",
+    "providertype": "MD"
+}]
+```
             </script>
           </section>
 
         <section data-markdown>
           <script type="text/template">
-            ### Test Driven Development (TDD)
+          ### Features Specs for Gets Are Straight Forward
+
             ```
-            gem_group :development
-              gem 'spring'
-              gem 'spring-commands-spec'
+            # spec/features/patient_checks_in_for_appointment_spec.rb
+            expect(page).to have_content "Dr. Marc Feingold"
+            ```
+            </script>
+          </section>
+
+
+        <section data-markdown>
+          <script type="text/template">
+          ### Put, Post, Delete Requests Require a Flag
+
+            ```
+            # spec/features/patient_checks_in_for_appointment_spec.rb
+            expect(FakeAthena).to have_updated_patient
+
+            # spec/support/fake_athena.rb
+            def self.has_updated_patient?
+              updated_patient
             end
 
-            gem_group :development, :test do
-              gem 'factory_girl_rails'
-              gem 'faker'
-              gem 'guard'
-              gem 'guard-rspec'
-              gem 'rspec-rails'
+            put "/patients/:patient_id" do
+              self.class.updated_patient = true
+              json_response 200, "update_patient.json"
             end
 
-            gem_group  :test do
-              gem 'capybara-webkit'
-              gem 'database_cleaner'
-              gem 'shoulda-matchers'
-              gem 'timecop'
-            end
             ```
             </script>
           </section>
 
         <section data-markdown>
           <script type="text/template">
-            ### Works with Legacy Apps
+          ### Clear the Flag After Each Test
+          ```
+          # spec/support/fake_athena.rb
+          def self.reset
+            self.updated_patient = false
+          end
 
+          # spec/rails_helper.rb
+          config.after(:each) do
+            FakeAthena.reset
+          end
             ```
-              bin/rake rails:template LOCATION=~/template.rb
-            ```
-
-            ```
-              gem 'rails-erd'
-            ```
-
-            ![](https://camo.githubusercontent.com/65139ce85e3ba9dd20b68a1068f5dab1f6ebdbf4/687474703a2f2f766f6f726d656469612e6769746875622e696f2f7261696c732d6572642f696d616765732f656e746974792d72656c6174696f6e736869702d6469616772616d2e706e67)
-
             </script>
           </section>
-
-
-        <section data-markdown>
-          <script type="text/template">
-            ### <a href="https://github.com/thoughtbot/suspenders" target="_blank">Suspenders</a>
-            A Rails template with our standard defaults, ready to deploy to Heroku.
-
-            ![](https://camo.githubusercontent.com/affcb2f36d3224a70d62c32432cf4ac74f6e7461/687474703a2f2f6d656469612e74756d626c722e636f6d2f315445414d414c7073656835787a66304a7436626377534d6f315f3430302e706e67)
-
-            ![](https://camo.githubusercontent.com/23e90466577ec68e58aa328113e15b756cd0c946/687474703a2f2f74686f75676874626f742e636f6d2f696d616765732f746d2f6c6f676f2e706e67)
-
-
-             </script>
-          </section>
-
-
-        <section data-markdown>
-          <script type="text/template">
-            ### <a href="https://github.com/thoughtbot/suspenders" target="_blank">Lightweight Alternative to Bootstrap</a>
-
-            * <a href="http://bourbon.io/" target="_blank">Bourbon</a> - mixin library for Sass
-            * <a href="http://neat.bourbon.io/" target="_blank">Neat</a> - semantic grid framework
-            * <a href="http://bitters.bourbon.io/" target="_blank">Bitters</a> - scaffold styles, variables and structure
-            * <a href="http://refills.bourbon.io/" target="_blank">Refills</a> - prepackaged patterns and components
-
-            If interested, talk to Hannah about the learning curve.
-
-             </script>
-          </section>
-
-        <section data-markdown>
-          <script type="text/template">
-            ## Paid Services
-           </script>
-        </section>
-
-        <section data-markdown>
-          <script type="text/template">
-            ### <a href="https://github.com/thoughtbot/hound" target="_blank">Codeclimate</a>
-
-            $99/month for small team. Free for open source
-
-            ![](https://d2gn4xht817m0g.cloudfront.net/p/product_screenshots/images/original/000/124/852/124852-08e97f64791f83b7f1ca66fa64c266d2d3aa1543.jpg?1354667810)
-
-             </script>
-          </section>
-
-        <section data-markdown>
-          <script type="text/template">
-            ### <a href="https://codeclimate.com/" target="_blank">Hound</a>
-
-            Style guide reviews for $12/month per repo
-
-            ![](http://images.thoughtbot.com/hound/hound-example-1.png)
-
-             </script>
-          </section>
-
-        <section data-markdown>
-          <script type="text/template">
-            ### <a href="https://codeclimate.com/" target="_blank">Travis</a>
-
-            Continuous Integration: $129/month & open source is free
-
-            ![](http://yizeng.me/assets/images/posts/2013-06-15-results-page-on-travis-ci.gif)
-
-             </script>
-          </section>
-
-        <section data-markdown>
-          <script type="text/template">
-            ### <a href="https://airbrake.io" target="_blank">Airbrake</a>
-
-            Detailed stack traces: $39/month
-
-            ![](http://d41r4qcowzuh5.cloudfront.net/screenshot/r/91578-2194875045.png)
-
-             </script>
-          </section>
-
 
         <section data-markdown>
           <script type="text/template">
             ### Questions???
-             </script>
-          </section>
-
-        <section data-markdown>
-          <script type="text/template">
-            ### What gems/services are missing?
-
-            Feel free to plug in to demo for the group.
              </script>
           </section>
 
@@ -337,7 +284,9 @@ Use Webmock gem to intercept calls and point them at your Fake class
         <h3>Wrapping Up</h3>
         <ul>
           <li class="fragment">Feedback. What topics/speakers would you like to see?</li>
-          <li class="fragment"><a href="http://www.meetup.com/Hoboken-Ruby-On-Rails-Meetup/events/219745781/" target="_blank">Next Meetup</a> is February 3rd</li>
+          <li class="fragment"><a
+            href="http://www.meetup.com/Hoboken-Ruby-On-Rails-Meetup/events/219745781/"
+            target="_blank">Next Meetup</a> is April 7th</li>
           <li class="fragment">Thanks to Tonight's Sponsor:<br>
           <img style="border: none; width: 300px;" src="http://epionhealth.com/wp-content/uploads/2014/05/EpionHealthLogo-2001.jpg" />
           </li>
