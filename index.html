@@ -101,7 +101,7 @@
 
         <section data-markdown>
           <script type="text/template">
-            ### Getting Started
+            ### Setup with [Webmock](https://github.com/bblimke/webmock)
             First make sure all external calls are intercepted
             ```ruby
             # spec/spec_helper.rb
@@ -129,7 +129,7 @@
 
         <section data-markdown>
           <script type="text/template">
-          ### VCR Gem
+          ### [VCR Gem](https://github.com/vcr/vcr)
           Record real API calls as cassettes and playback responses
           ![](http://media.tumblr.com/59ece9aa17aad6c8f3c303d5e1ad7e39/tumblr_inline_n2hv8b9lO41s9wfrd.png)
             </script>
@@ -160,6 +160,7 @@ Use Webmock gem to intercept calls and redirect them to your Fake class
             ### Setting up the Fake
 Create your sinatra app
 ```ruby
+# spec/support/fake_athena.rb
 
 require "sinatra/base"
 require "sinatra/namespace"
@@ -173,7 +174,7 @@ end
 
         <section data-markdown>
           <script type="text/template">
-            ### Setting up the Fake
+            ### Fixtures
 Set up endpoints and fixtures as needed by tests
 ```ruby
     #spec/support/fake_athena.rb
@@ -188,7 +189,9 @@ Set up endpoints and fixtures as needed by tests
       status response_code
       File.open(File.dirname(__FILE__) + "/../fixtures/" + file_name, "rb").read
     end
+    ```
 
+```
     #spec/fixtures/provider.json
 [{
     "firstname": "Marc",
@@ -226,9 +229,6 @@ Set up endpoints and fixtures as needed by tests
           ### Put, Post, Delete Requests Require a Flag
 
             ```
-            # spec/features/patient_checks_in_for_appointment_spec.rb
-            expect(FakeAthena).to have_updated_patient
-
             # spec/support/fake_athena.rb
             def self.has_updated_patient?
               updated_patient
@@ -239,6 +239,11 @@ Set up endpoints and fixtures as needed by tests
               json_response 200, "update_patient.json"
             end
 
+            ```
+
+            ```
+            # spec/features/patient_checks_in_for_appointment_spec.rb
+            expect(FakeAthena).to have_updated_patient
             ```
             </script>
           </section>
