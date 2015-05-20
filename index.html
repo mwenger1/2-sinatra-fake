@@ -212,36 +212,105 @@ end
             </script>
           </section>
 
-        <!--<section data-markdown>-->
-          <!--<script type="text/template">-->
-          <!--### Factory Pattern-->
-          <!--* "Template method applied to the problem of creating new objects"-->
-          <!--* single factory method-->
-          <!--![](http://media.tumblr.com/59ece9aa17aad6c8f3c303d5e1ad7e39/tumblr_inline_n2hv8b9lO41s9wfrd.png)-->
-            <!--</script>-->
-          <!--</section>-->
+        <section data-markdown>
+          <script type="text/template">
+          ### Factory Pattern
+          <li class="fragment">"Template method applied to the problem of creating new objects"
+          <li class="fragment">"Layer of abstraction on top of object creation so that directly working with its constructor is no longer necessary"
+            </script>
+          </section>
 
-      <section>
+        <section data-markdown>
+          <script type="text/template">
+          ### Factory Pattern
+          ```ruby
+          class CustomFieldFactory
+            CLASS_MAPPINGS = {
+              'TEXT' => CustomField,
+              'DATE' => CustomDateField,
+              'NUMBER' => CustomNumberField,
+            }
+
+            def self.build(attributes)
+              new(attributes).build
+            end
+
+            def initialize(attributes)
+              @attributes = attributes
+            end
+
+            def build
+              question_class.new(attributes)
+            end
+
+            private
+
+            def question_class
+              if select_question?
+                CustomDropDownField
+              else
+                CLASS_MAPPINGS.fetch(type)
+              end
+            end
+
+            attr_reader :attributes
+          end
+          ```
+        </script>
+        </section>
+
+        <section data-markdown>
+          <script type="text/template">
+          ### Factory Pattern
+            ```ruby
+            [
+            {"customfieldid"=>"103", "disallowupdate"=>"false",
+              "select"=>"false", "casesensitive"=>"false", "name"=>"Home Phone
+              Preference", "length"=>"10", "type"=>"TEXT",
+              "customfieldvalue"=>"Fake answer"},
+             {"customfieldid"=>"106", "disallowupdate"=>"false",
+               "select"=>"false", "casesensitive"=>"false", "name"=>"Caregiver
+               Phone Number", "length"=>"10", "type"=>"NUMBER"},
+            {"customfieldid"=>"107", "disallowupdate"=>"false",
+              "select"=>"false", "casesensitive"=>"false", "name"=>"Whats your
+              birthday", "type"=>"DATE", "customfieldvalue"=>"04/01/2015",
+              "optionid"=>"0"},
+            {"selectlist"=>[{"optionvalue"=>"Orange", "optionid"=>"81"},
+            {"optionvalue"=>"Blue", "optionid"=>"82"},
+            {"optionvalue"=>"Yellow", "optionid"=>"83"}],
+            ```
+
+            ```ruby
+            def questions
+              @questions ||= fields.map do |field|
+                CustomFieldFactory.build(field)
+              end
+            end
+            ```
+          </script>
+        </section>
+        
+        <section>
         <h3>Wrapping Up</h3>
         <ul>
-          <li class="fragment">Feedback. What topics/speakers would you like to see?</li>
-          <li class="fragment"><a
-            href="http://www.meetup.com/Hoboken-Ruby-On-Rails-Meetup/events/219745781/"
-            target="_blank">Next Meetup</a> is June 9th</li>
-          <li class="fragment">Thanks to Tonight's Sponsor:<br>
-          <img style="border: none; width: 300px;" src="http://epionhealth.com/wp-content/uploads/2014/05/EpionHealthLogo-2001.jpg" />
-          </li>
-          <li class="fragment">Keep the conversation going over drinks at Wicked Wolf</li>
+        <li class="fragment">Feedback. What topics/speakers would you like to see?</li>
+        <li class="fragment"><a
+        href="http://www.meetup.com/Hoboken-Ruby-On-Rails-Meetup/events/219745781/"
+        target="_blank">Next Meetup</a> is June 9th</li>
+        <li class="fragment">Thanks to Tonight's Sponsor:<br>
+        <img style="border: none; width: 300px;" src="http://epionhealth.com/wp-content/uploads/2014/05/EpionHealthLogo-2001.jpg" />
+        </li>
+        <li class="fragment">Keep the conversation going over drinks at Wicked Wolf</li>
         </ul>
         </section>
 
-      <section>
+        <section>
         <h2>Have a great night!</h2>
         </section>
 
-        </div>
+  </div>
 
-      </div>
+  </div>
 
       <script src="lib/js/head.min.js"></script>
       <script src="js/reveal.min.js"></script>
