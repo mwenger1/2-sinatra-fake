@@ -64,8 +64,9 @@
         <section>
         <h3>Tonight's Gameplan</h3>
         <ul>
-          <li>Icebreaker: What I am going to learn this month</li>
-          <li>PRESENTATION: Design Patterns</li>
+          <li>Icebreaker: What you learned this month or are going to learn this
+          month</li>
+          <li>PRESENTATION: Less Known Parts of the Rails Stack</li>
           <li>Open Conversation: Ask the group anything</li>
           <li>Wrap up around 8:30. Can continue the conversation at the bar downstairs</li>
         </ul>
@@ -75,218 +76,153 @@
         <ul>
           <li>What's your name?</li>
           <li>What's your story? (job, technology stack, open source)</li>
-          <li>What you want to learn this month?</li>
+          <li>What did you learn this month or what do you want to learn this month?</li>
         </ul>
         </section>
         <section data-markdown>
           <script type="text/template">
-            ### Design Pattern 101
-            * Constructing software has a lot of reinventing the wheel
-            * Gang of 4 set out to identify patterns (common tools)
-            * Design Patterns: Elements of Reusable Object-Oriented Software
-            (1994) =>
-
-            ![](http://designpatternsinruby.com/assets/images/dpir.jpeg)
+            ### Less Known Parts of the Rails Stack
 
           </script>
         </section>
 
         <section data-markdown>
           <script type="text/template">
-            ### Singleton Pattern
-            * Just need a single instance of a class
-            * Use cases (Logger...?)
-            * Is included in Ruby Standard Library
-
-            ```ruby
-            require "singleton"
-
-            class CustomLogger
-              include Singleton
-
-              def initialize
-                @output = []
-              end
-            end
-            ```
+            ### Interview Question
+            <p class="fragment">
+            Describe the process and components involved when a request comes
+            into the Rails stack and a response is sent back to the client.
+            </p>
 
             </script>
           </section>
 
         <section data-markdown>
           <script type="text/template">
-            ### Singleton Pattern
-            * Can't instantiate object the way you usually do
-            ```ruby
-            logger = CustomLogger.new  
-            NoMethodError: private method 'new' called for CustomLogger:Class
-            ```
+            <img
+            src="http://www.codelearn.org/assets/Module1/l6_block_dia_vc.png" />
 
-            * Singleton method provides 'instance' method
-            ```ruby
-            logger = CustomLogger.instance
-            ```
           </script>
         </section>
         <section data-markdown>
           <script type="text/template">
-            ### Template Pattern
-            * Base "skeletal" class serves as the basis for
-            subclasses (concrete classes)
-            * Skeletal class contains methods (abstract) overridden by
-            subclasses
+            ### What happens before the routes file?
 
-            </script>
-          </section>
+            <li class="fragment">Rack Middleware</li>
+            <li class="fragment">What's Rack Middleware?</li>
 
-        <section data-markdown>
-          <script type="text/template">
-            ### Skeletal Class
-
-            ```ruby
-            class CustomField
-              attr_accessor :value
-
-              def initialize(attributes)
-                @attributes = attributes
-              end
-
-              << code trimmed out >>
-
-              private
-
-              attr_reader :attributes
-
-              def field_type
-                :string
-              end
-            end
-
-            ```
-
-            </script>
-          </section>
-
-        <section data-markdown>
-          <script type="text/template">
-            ### Concrete Class
-            ```ruby
-            class CustomDropDownField < CustomField
-              << code trimmed out >>
-
-              private
-
-              def field_type
-                :select
-              end
-            end
-            ```
-            </script>
-          </section>
-
-        <section data-markdown>
-          <script type="text/template">
-            ### Hook Methods - [Thanks Dockyard](http://reefpoints.dockyard.com/ruby/2013/07/10/design-patterns-template-pattern.html)
-
-            ```ruby
-class Wall
-  ...
-  private
-
-  def length
-    raise NotImplementedError, 'Sorry, you have to override length'
-  end
-end
-
-class BrickWall < Wall
-  ...
-  private
-
-  def length
-    30
-  end
-end
-
-            ```
-
-            </script>
-          </section>
-
-        <section data-markdown>
-          <script type="text/template">
-          ### Factory Pattern
-          <li class="fragment">"Template method applied to the problem of creating new objects"
-          <li class="fragment">"Layer of abstraction on top of object creation so that directly working with its constructor is no longer necessary"
-            </script>
-          </section>
-
-        <section data-markdown>
-          <script type="text/template">
-          ### Factory Pattern
-          ```ruby
-          class CustomFieldFactory
-            CLASS_MAPPINGS = {
-              'TEXT' => CustomField,
-              'DATE' => CustomDateField,
-              'NUMBER' => CustomNumberField,
-            }
-
-            def self.build(attributes)
-              new(attributes).build
-            end
-
-            def initialize(attributes)
-              @attributes = attributes
-            end
-
-            def build
-              question_class.new(attributes)
-            end
-
-            private
-
-            def question_class
-              if select_question?
-                CustomDropDownField
-              else
-                CLASS_MAPPINGS.fetch(type)
-              end
-            end
-
-            attr_reader :attributes
-          end
-          ```
-        </script>
+          </script>
         </section>
+        <section data-markdown>
+          <script type="text/template">
+            ### What is Rack Middleware?
+            <img src="http://rack.github.io/rack-logo.png" />
+
+            Rack provides a minimal, modular and adaptable interface for
+            developing web applications in Ruby. By wrapping HTTP requests and
+            responses in the simplest way possible, it unifies and distills the
+            API for web servers, web frameworks, and software in between (the
+            so-called middleware) into a single method call.
+
+            </script>
+          </section>
 
         <section data-markdown>
           <script type="text/template">
-          ### Factory Pattern
+            ### What's in my Rack Middleware?
+
+            <li class="fragment">
+            Take a look under the hood</li>
+
+            <p class="fragment">
+            ```
+            bin/rake middleware
+            ```
+            </p>
+            </script>
+          </section>
+        <section data-markdown>
+          <script type="text/template">
             ```ruby
-            [
-            {"customfieldid"=>"103", "disallowupdate"=>"false",
-              "select"=>"false", "casesensitive"=>"false", "name"=>"Home Phone
-              Preference", "length"=>"10", "type"=>"TEXT",
-              "customfieldvalue"=>"Fake answer"},
-             {"customfieldid"=>"106", "disallowupdate"=>"false",
-               "select"=>"false", "casesensitive"=>"false", "name"=>"Caregiver
-               Phone Number", "length"=>"10", "type"=>"NUMBER"},
-            {"customfieldid"=>"107", "disallowupdate"=>"false",
-              "select"=>"false", "casesensitive"=>"false", "name"=>"Whats your
-              birthday", "type"=>"DATE", "customfieldvalue"=>"04/01/2015",
-              "optionid"=>"0"},
-            {"selectlist"=>[{"optionvalue"=>"Orange", "optionid"=>"81"},
-            {"optionvalue"=>"Blue", "optionid"=>"82"},
-            {"optionvalue"=>"Yellow", "optionid"=>"83"}],
+            use Honeybadger::Rack::UserInformer
+            use Honeybadger::Rack::UserFeedback
+            use Honeybadger::Rack::ErrorNotifier
+            use Rack::Sendfile
+            use ActionDispatch::Static
+            use Rack::Lock
+            use #<ActiveSupport::Cache::Strategy::LocalCache::Middleware:0x007faa8fcf26a0>
+            use Rack::Runtime
+            use Rack::MethodOverride
+            use ActionDispatch::RequestId
+            use Rails::Rack::Logger
+            use ActionDispatch::ShowExceptions
+            use ActionDispatch::DebugExceptions
+            use BetterErrors::Middleware
+            use ActionDispatch::RemoteIp
+            use ActionDispatch::Reloader
+            use ActionDispatch::Callbacks
+            use ActiveRecord::Migration::CheckPending
+            use ActiveRecord::ConnectionAdapters::ConnectionManagement
+            use ActiveRecord::QueryCache
+            use ActionDispatch::Cookies
+            use ActionDispatch::Session::CookieStore
+            use ActionDispatch::Flash
+            use ActionDispatch::ParamsParser
+            use Rack::Head
+            use Rack::ConditionalGet
+            use Rack::ETag
+            use Warden::Manager
+            run PatientCheckIn::Application.routes
+
+            ```
+            <a target="_blank"
+              href="http://guides.rubyonrails.org/rails_on_rack.html#internal-middleware-stack"
+              class="fragment">What are these modules doing?</a>
+
+            </script>
+          </section>
+
+        <section data-markdown>
+          <script type="text/template">
+            ### Modules Of Interest
+            <li class="fragment"><a target="_blank"
+              href="http://api.rubyonrails.org/classes/ActiveRecord/Migration/CheckPending.html#method-i-call">ActiveRecord::Migration::CheckPending:</a>
+            Checks pending migrations and raises
+            ActiveRecord::PendingMigrationError if any migrations are
+            pending.</li>
+            <li class="fragment">ActionDispatch::ShowExceptions: 
+            Rescues any exception returned by the application and calls an
+            exceptions app that will wrap it in a format for the end user.
+            </li>
+            <li class="fragment"><a target="_blank"
+              href="http://api.rubyonrails.org/classes/ActionDispatch/ParamsParser.html">ActionDispatch::ParamsParser:</a> Parses out
+            parameters from the request into params.</li>
+            <li class="fragment"><a target="_blank"
+              href="http://api.rubyonrails.org/classes/ActionDispatch/Flash.html#method-i-call">ActionDispatch::Flash:</a> Sets up the flash keys. Only available if
+            config.action_controller.session_store is set to a value.</li>
+
+
+          </script>
+        </section>
+        <section data-markdown>
+          <script type="text/template">
+            ### Adding Your Own Module To Rack
+
+          </script>
+          </section>
+
+        <section data-markdown>
+          <script type="text/template">
+
+            ```
+    def middleware
+      middlewares = []
+      middlewares << [Rails::Rack::Debugger] if options[:debugger]
+      middlewares << [::Rack::ContentLength]
+      Hash.new(middlewares)
+    end
             ```
 
-            ```ruby
-            def questions
-              @questions ||= fields.map do |field|
-                CustomFieldFactory.build(field)
-              end
-            end
-            ```
           </script>
         </section>
         
@@ -296,7 +232,7 @@ end
         <li class="fragment">Feedback. What topics/speakers would you like to see?</li>
         <li class="fragment"><a
         href="http://www.meetup.com/Hoboken-Ruby-On-Rails-Meetup/events/219745781/"
-        target="_blank">Next Meetup</a> is June 9th</li>
+        target="_blank">Next Meetup</a> is July 21st</li>
         <li class="fragment">Thanks to Tonight's Sponsor:<br>
         <img style="border: none; width: 300px;" src="http://epionhealth.com/wp-content/uploads/2014/05/EpionHealthLogo-2001.jpg" />
         </li>
