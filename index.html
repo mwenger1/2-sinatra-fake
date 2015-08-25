@@ -64,10 +64,13 @@
         <section>
         <h3>Tonight's Gameplan</h3>
         <ul>
-          <li>Icebreaker: What you learned this month or are going to learn this
-          month</li>
-          <li>PRESENTATION: Test Driving Rake Tasks</li>
-          <li>PRESENTATION: API Monitor Service</li>
+          <li>Meet the Group / Icebreaker</li>
+          <li>Lightning Talks</li>
+            <ul>
+              <li>Javscript Goodness</li>
+              <li>Project Management with Trello</li>
+              <li>Diving Deeper with Active Record Query Interface</li>
+            </ul>
           <li>Open Conversation: Ask the group anything</li>
           <li>Wrap up around 8:30. Can continue the conversation at the bar downstairs</li>
         </ul>
@@ -82,207 +85,122 @@
         </section>
         <section data-markdown>
           <script type="text/template">
-            ## Test Driving Rake Tasks
+            ## [Active Record Query Interface]("http://guides.rubyonrails.org/active_record_querying.html")
+
+            <p class="fragment">Active Record insulates you from the need to use
+            SQL in most cases.</p>
           </script>
         </section>
 
         <section data-markdown>
           <script type="text/template">
-            ### Rake's a Familiar Friend
-            ```ruby
-            # command line
-
-            rake db:migrate
-            rake routes
-            rake spec
-            rake assets:precompile
-
-            ```
-
+            ## Rolling Back the Magic
           </script>
         </section>
 
         <section data-markdown>
           <script type="text/template">
-            ### Uncovering New Tasks
-            ```ruby
-            # command line
+            ### ?
 
-            rake -T
+            <pre ><code>
+              # SQL
+              SELECT * FROM patients WHERE (patients.id = 5) LIMIT 1
+              </code>
+            </pre>
 
-            ```
-          </script>
-        </section>
-
-        <section data-markdown>
-          <script type="text/template">
-            ```ruby
-            # command line
-
-            rake tmp:clear
-            rake middleware
-            rake notes
-            rake secret
-            rake stats
-            ```
-            <img class="fragment" src="http://i.imgur.com/YqsCQpF.png" title="source: imgur.com"
-            style="width: 500px;"/>
-
-            </script>
-          </section>
-
-        <section data-markdown>
-          <script type="text/template">
-            ### What is Rake?
-
-            <li class="fragment">
-              Rake is Ruby Make, a standalone Ruby utility that replaces the Unix utility 'make'
-
-            <li class="fragment">
-              Used for common administration tasks, especially sophisticated ones that build off of each other.
+            <pre class="fragment"><code>
+              # Active Record
+              Patient.find(5)
+              </code>
+            </pre>
 
           </script>
         </section>
 
         <section data-markdown>
           <script type="text/template">
-            ### Rolling Your Own Rake Tasks
+            ### ?
 
-            <li class="fragment">Has anyone created their own rake task?</li>
-            <li class="fragment">What types of things are a good fit for rake?</li>
+            <pre ><code>
+              # SQL
+              SELECT * FROM patients ORDER BY patients.id DESC LIMIT 3
+              </code>
+            </pre>
+
+            <pre class="fragment"><code>
+              # Active Record
+              Patient.last(3)
+              </code>
+            </pre>
+
+          </script>
+        </section>
+
+        <section data-markdown>
+          <script type="text/template">
+            ### ?
+
+            <pre ><code>
+              # SQL
+              SELECT "users".* FROM "users" WHERE
+              "users"."first_name" = $1 LIMIT 1 [["first_name", "Hannah"]]
+              </code>
+            </pre>
+
+            <pre class="fragment"><code>
+              # Active Record
+              Patient.where(first_name: "Hannah").take
+
+              # OR
+
+              Patient.find_by first_name: "Hannah"
+              </code>
+            </pre>
 
           </script>
         </section>
 
         <section data-markdown>
           <script type="text/template">
-            ### Epion Rake Tasks
+            ### ?
 
-            ```ruby
-              rake bundler:audit
-              rake jobs:clear
-              rake konacha:serve
-              rake honeybadger:deploy
+            <pre ><code>
+              # SQL
+              SELECT * FROM patients ORDER BY appointments_count ASC, created_at DESC
+              </code>
+            </pre>
 
-              rake cache:clear
-              rake athena:ping
-              rake athena:update_patients[FILENAME]
-
-            ```
+            <pre class="fragment"><code>
+              # Active Record
+              Patient.order("appointments_count ASC").order("created_at DESC")
+              </code>
+            </pre>
 
           </script>
         </section>
-        <section data-markdown>
-          <script type="text/template">
-            ### Rake Tasks Best Practices
-
-            * Clearly name tasks. Use namespaces and descriptions as needed
-            * Keep tasks small. For complex things, you can set up dependencies where tasks call other tasks.
-            * Highlight progress, completion and errors
-            * Have tests!
-
-            </script>
-          </section>
 
         <section data-markdown>
           <script type="text/template">
-            ### Testing Rake Tasks
-            (thanks to [Josh Clayton]("https://robots.thoughtbot.com/test-rake-tasks-like-a-boss"))
+            ### ?
 
-            </script>
-          </section>
+            <pre ><code>
+              # SQL
+              SELECT DISTINCT name FROM patients
+              </code>
+            </pre>
 
-        <section data-markdown>
-          <script type="text/template">
-            ### Shared Context Setup
+            <pre class="fragment"><code>
+              # Active Record
+              Patient.select(:name).distinct
+              </code>
+            </pre>
 
-            ```ruby
-              # spec/support/shared_contexts/rake.rb
-              require "rake"
-
-              shared_context "rake" do
-                let(:rake)      { Rake::Application.new }
-                let(:task_name) { self.class.top_level_description }
-                let(:task_path) { "lib/tasks/#{task_name.split(":").first}" }
-                subject         { rake[task_name] }
-
-                def loaded_files_excluding_current_rake_file
-                  $".reject {|file| file == Rails.root.join("#{task_path}.rake").to_s }
-                end
-
-                before do
-                  Rake.application = rake
-                  Rake.application.rake_require(task_path, [Rails.root.to_s], loaded_files_excluding_current_rake_file)
-
-                  Rake::Task.define_task(:environment)
-                end
-              end
-            ```
-            </script>
-          </section>
-
-        <section data-markdown>
-          <script type="text/template">
-            ### Spec
-
-            ```ruby
-              # spec/tasks/athena_rake_spec.rb
-
-              require "rails_helper"
-
-              describe "athena:update_patients" do
-                include_context "rake"
-
-                it "starts a patient record import" do
-                  csv_path = double(:csv_path)
-                  patient_record_import = double(:patient_record_import, start: true)
-                  allow(PatientRecordImport).to receive(:new).with(csv_path).
-                    and_return(patient_record_import)
-
-                  subject.invoke csv_path
-
-                  expect(PatientRecordImport).to have_received(:new)
-                  expect(patient_record_import).to have_received(:start)
-                end
-              end
-            ```
-            </script>
-          </section>
-
-        <section data-markdown>
-          <script type="text/template">
-            ### Code
-
-            ```ruby
-              namespace :athena do
-                task :update_patients, [:csv_path] => :environment do |t, options|
-                  PatientRecordImport.new(options[:csv_path]).start
-                end
-              end
-            ```
-
-<div style="height:50px;"></div>
-
-            ```ruby
-            # command line
-
-            rake athena:update_patients["test.csv"]
-            ```
-            </script>
-          </section>
+          </script>
+        </section>
 
         <section data-markdown>
           <script type="text/template">
             ### Questions?
-
-          </script>
-        </section>
-
-        <section data-markdown>
-          <script type="text/template">
-            ### API Monitor Service
-
-            <a href="https://github.com/arktisklada/bin_worker_example">Github</a>
 
           </script>
         </section>
