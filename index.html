@@ -229,7 +229,48 @@
 
         <section data-markdown>
           <script type="text/template">
-            ### Scopes
+            ### Requirements
+
+            <ul>
+              <li>Count of unique providers with daily utilization report
+                <ul>
+                  <li class="fragment">Only want providers from past month
+                  <li class="fragment">Don't include test providers (i.e. "ZZZTest Provider")
+                  <li class="fragment">Don't count a report if it doesn't have a check-in
+                </ul>
+              </li>
+              <li class="fragment">Count of unique offices with daily utilization report
+              <li class="fragment">Sum of all unique check-ins from daily utilization reports
+            </ul>
+          </script>
+        </section>
+
+        <section data-markdown>
+          <script type="text/template">
+            ### Active Reports Query Specs
+            <pre><code>
+              RSpec.describe DailyUtilizationReport, type: :model do
+                describe "Scopes" do
+                  describe ".active_reports" do
+                    it "returns reports during period length" do
+                    end
+
+                    it "returns reports with a started check-in" do
+                    end
+
+                    it "does not include fake providers (i.e. ZZZtest)" do
+                    end
+                  end
+                end
+              end
+            </code>
+          </pre>
+          </script>
+        </section>
+
+        <section data-markdown>
+          <script type="text/template">
+            ### Active Reports Query
 
             <pre><code class="ruby">
               class DailyUtilizationReport < ActiveRecord::Base
@@ -241,6 +282,30 @@
                     where.not("LOWER(provider_name) like ?", "zzz%")
                 end
               end
+              </code>
+            </pre>
+
+          </script>
+        </section>
+
+        <section data-markdown>
+          <script type="text/template">
+            ### Additional Queries Specs
+
+            <pre><code class="ruby">
+              class DailyUtilizationReport < ActiveRecord::Base
+                describe ".active_provider_count" do
+                  it "chains off of active_reports" ...
+
+                  it "does not count the same provider twice" ...
+                end
+
+                describe ".check_in_started_count" do
+                  it "chains off of active_reports" ...
+
+                  it "aggregates the count of started check ins" ...
+                end
+              end
             </code>
           </pre>
 
@@ -249,16 +314,12 @@
 
         <section data-markdown>
           <script type="text/template">
-            ### Scopes
+            ### Additional Queries
 
             <pre><code class="ruby">
               class DailyUtilizationReport < ActiveRecord::Base
-                ACTIVE_PERIOD_LENGTH = 1.month.ago
-
                 scope :active_reports, -> do
-                  where("data_date >= ?", ACTIVE_PERIOD_LENGTH).
-                    where.not(epion_check_ins_started: 0).
-                    where.not("LOWER(provider_name) like ?", "zzz%")
+                  ...
                 end
 
                 scope :active_provider_count, -> do
@@ -271,7 +332,6 @@
               end
             </code>
           </pre>
-
           </script>
         </section>
 
