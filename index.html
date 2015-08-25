@@ -200,6 +200,83 @@
 
         <section data-markdown>
           <script type="text/template">
+            ### ?
+
+            <pre ><code>
+              # SQL
+              SELECT COUNT(*) FROM "users"
+              </code>
+            </pre>
+
+            <pre class="fragment"><code>
+              # Active Record
+              User.count
+              </code>
+            </pre>
+
+          </script>
+        </section>
+
+        <section data-markdown>
+          <script type="text/template">
+            ### Scopes
+
+            <p class="fragment">Encapsulate commonly-used queries into a method
+            call</p>
+
+          </script>
+        </section>
+
+        <section data-markdown>
+          <script type="text/template">
+            ### Scopes
+
+            <pre><code class="ruby">
+              class DailyUtilizationReport < ActiveRecord::Base
+                ACTIVE_PERIOD_LENGTH = 1.month.ago
+
+                scope :active_reports, -> do
+                  where("data_date >= ?", ACTIVE_PERIOD_LENGTH).
+                    where.not(epion_check_ins_started: 0).
+                    where.not("LOWER(provider_name) like ?", "zzz%")
+                end
+              end
+            </code>
+          </pre>
+
+          </script>
+        </section>
+
+        <section data-markdown>
+          <script type="text/template">
+            ### Scopes
+
+            <pre><code class="ruby">
+              class DailyUtilizationReport < ActiveRecord::Base
+                ACTIVE_PERIOD_LENGTH = 1.month.ago
+
+                scope :active_reports, -> do
+                  where("data_date >= ?", ACTIVE_PERIOD_LENGTH).
+                    where.not(epion_check_ins_started: 0).
+                    where.not("LOWER(provider_name) like ?", "zzz%")
+                end
+
+                scope :active_provider_count, -> do
+                  active_reports.uniq.pluck(:provider_id).count
+                end
+
+                scope :check_in_started_count, -> do
+                  active_reports.sum(:epion_check_ins_started)
+                end
+              end
+            </code>
+          </pre>
+
+          </script>
+        </section>
+
+        <section data-markdown>
+          <script type="text/template">
             ### Questions?
 
           </script>
@@ -211,7 +288,7 @@
         <li class="fragment">Feedback. What topics/speakers would you like to see?</li>
         <li class="fragment"><a
         href="http://www.meetup.com/Hoboken-Ruby-On-Rails-Meetup/events/219745781/"
-        target="_blank">Next Meetup</a> is August 25st</li>
+        target="_blank">Next Meetup</a> is September 22nd</li>
         <li class="fragment">Thanks to Tonight's Sponsor:<br>
         <img style="border: none; width: 300px;" src="http://epionhealth.com/wp-content/uploads/2014/05/EpionHealthLogo-2001.jpg" />
         </li>
