@@ -107,11 +107,24 @@
 
             ```
             gem install refinerycms
+
+            refinerycms app_name --heroku 
+            OR
             rails new app_name -m http://refinerycms.com/t/edge
             ```
           </script>
         </section>
 
+        <section data-markdown>
+          <script type="text/template">
+            ### Getting Started
+
+            ```
+            rake refinery:override view=refinery/_footer
+            rails g refinery:engine doctor name:string bio:text
+            ```
+          </script>
+        </section>
 
         <section data-markdown>
           <script type="text/template">
