@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8">
 
-    <title>Hoboken Rails Meetup</title>
+    <title>20.1 Javascript Testing</title>
 
     <meta name="description" content="A framework for easily creating beautiful presentations using HTML">
     <meta name="author" content="Hakim El Hattab">
@@ -47,198 +47,104 @@
       <!-- Any section element inside of this container is displayed as a slide -->
       <div class="slides">
         <section>
-        <h1>Hoboken Rails Meetup</h1>
-        <p>Grab pizza while we're waiting to kick things off</p>
+          <h2>Javascript Testing</h2>
+          <img style="width: 50%" src="/images/stop-making-excuses.jpeg" />
         </section>
+
         <section>
-        <h3>Housekeeping Before We Start</h3>
-        <ul>
-          <li class="fragment">Bathrooms</li>
-          <li class="fragment">Would love your feedback</li>
-          <li class="fragment">Looking for speakers to share ANYTHING!</li>
-          <li class="fragment">Tonight's Sponsor:<br>
-          <img style="border: none; width: 300px;" src="http://epionhealth.com/wp-content/uploads/2014/05/EpionHealthLogo-2001.jpg" />
-          </li>
-        </ul>
+          <h3>Why Should I Test?</h3>
+
+          <ul>
+            <li class="fragment">Manually testing in the browser is time intensive</li>
+            <li class="fragment">Confidently refactor your code without fear of regression bugs</li>
+            <li class="fragment">Gives clear direction of what needs to happen next</li>
+            <li class="fragment">Exposes code smells</li>
+          </ul>
         </section>
+
         <section>
-        <h3>Tonight's Gameplan</h3>
-        <ul>
-          <li>Meet the Group / Icebreaker</li>
-          <li>Talks</li>
-            <ul>
-              <li>Something Interesting (Hannah)</li>
-              <li>Something Really Interesting (Amy)
-              <li>Internationalization (Mike)
-            </ul>
-          <li>Open Conversation: Ask the group anything</li>
-          <li>Wrap up around 8:30. Can continue the conversation at the bar downstairs</li>
-        </ul>
-        </section>
-        <section>
-        <h3>Ice Breaker Questions</h3>
-        <ul>
-          <li>What's your name?</li>
-          <li>What's your story? (job, technology stack, open source)</li>
-          <li>What did you learn this month or what do you want to learn this month?</li>
-        </ul>
-        </section>
-        <section data-markdown>
-          <script type="text/template">
-            ## I18n
-          </script>
+          <h3>Types of Tests</h3>
+          <ul>
+            <li class="fragment">Specs (specifications) is also used to describe tests</li>
+            <li class="fragment">Unit Tests - testing individual units of code in isolation</li>
+            <li class="fragment">Integration Tests - testing multiple components of code as a group</li>
+            <li class="fragment">Feature Tests (aka E2E - End-To-End) - a high-level Integration Test. Usually simulates what a user experiences in the browser</li>
+          </ul>
         </section>
 
         <section data-markdown>
           <script type="text/template">
-            ### I18n
-
-            * Rails makes it painlessly
-            easy with [amazing documentation](http://guides.rubyonrails.org/i18n.html)
-            * All static strings in the framework are already
-            [internationalized](https://github.com/rails/rails/blob/master/activemodel/lib/active_model/locale/en.yml)
-            [(translated)](https://github.com/svenfuchs/rails-i18n/blob/master/rails/locale/en.yml)
-            for you
-            * Your original text can stay DRY in easy to manage [.yml files](https://github.com/EpionHealth/patient-check-in/blob/master/config/locales/en.yml)
-          </script>
-        </section>
-
-        <section data-markdown>
-          <script type="text/template">
-            ### en.yml files in practice
+            ### Testing Levels
 
             ```
-            # en.yml
-            en:
-              affected_side:
-                both: "Both"
-                left: "Left"
-                not_applicable: "Does not apply."
-                right: "Right"
-           ```
+              # Unit Test
 
-            ```
-            # app/helpers/chief_complaint.rb
-            def affected_side_options
-              [
-                [I18n.t("affected_side.left"), :left],
-                [I18n.t("affected_side.right"), :right],
-                [I18n.t("affected_side.both"), :both],
-                [I18n.t("affected_side.not_applicable"), :not_applicable]
-              ]
-            end
+              describe('sorting the list of users', function() {
+                it('sorts in descending order by default', function() {
+                  var users = ['jack', 'igor', 'jeff'];
+                  var sorted = sortUsers(users);
+                  expect(sorted).toEqual(['jeff', 'jack', 'igor']);
+                });
+             });
             ```
 
             ```
-            # spec/feature/patient_adds_chief_complaint_spec.rb
+              # Feature (E2E) Test
 
-            expect(page).to have_content t("affected_side.left")
-            ```
-          </script>
-        </section>
-
-        <section data-markdown>
-          <script type="text/template">
-            ### Time to translate
-
-            Take a look at your application.rb file
+              describe("Welcome Page", function() {
+                it('should have a working welcome directive apply it\'s logic to the page', function() {
+                  browser().navigateTo('#!/videos');
+                  expect(browser().location().path()).toBe("/videos");
+                  expect(element('#app-welcome-text').html()).toContain('Welcome');
+                });
+              });
 
             ```
-            # The default locale is :en and all translations from
-            config/locales/*.rb,yml are auto loaded.
-            # config.i18n.load_path += Dir[Rails.root.join('my', 'locales',
-            '*.{rb,yml}').to_s]
-            # config.i18n.default_locale = :de
-            ```
-          </script>
-        </section>
-
-        <section data-markdown>
-          <script type="text/template">
-            ### Convention Over Configuration
-
-            You may be tempted to store the chosen locale in a session or a
-            cookie. However, do not do this. The locale should be transparent
-            and a part of the URL. This way you won't break people's basic
-            assumptions about the web itself: if you send a URL to a friend,
-            they should see the same page and content as you. A fancy word for
-            this would be that you're being RESTful.
-
-            ~ Rails Guide
-          </script>
-        </section>
-
-        <section data-markdown>
-          <script type="text/template">
-            ### Check Locale in Controller
-            For a request to http://yoursite.com?locale=de
-
-            ```
-            before_action :set_locale
-
-            def set_locale
-              I18n.locale = params[:locale] || I18n.default_locale
-            end
-            ```
-
-
-            HINT - You could also use domain (i.e. http://yoursite.de) or
-            (http://yoursite.com/de/page_request)
-          </script>
-        </section>
-
-        <section data-markdown>
-          <script type="text/template">
-            ### Translating dynamic text
-            Easy breezy as .yml files support variables
-
-            ```
-            # app/views/home/index.html.erb
-            <%=t 'greet_username', user: "Bill", message: "Goodbye" %>
-            ```
-
-            ```
-            # config/locales/en.yml
-            en:
-              greet_username: "%{message}, %{user}!"
-            ```
-          </script>
-        </section>
-
-        <section data-markdown>
-          <script type="text/template">
-            ### Other Things to Note
-
-            * [gem 'i18n-tasks'](https://github.com/glebm/i18n-tasks)
-            * Persisting user language preference
-            * Using IP address or Geolocation
-            * Don't use country flags in your UI
-            * Use automated translation services as a first pass before handing
-            off to translators
           </script>
         </section>
 
         <section>
-        <h3>Wrapping Up</h3>
-        <ul>
-        <li class="fragment">Feedback. What topics/speakers would you like to see?</li>
-        <li class="fragment"><a
-        href="http://www.meetup.com/Hoboken-Ruby-On-Rails-Meetup/events/219745781/"
-        target="_blank">Next Meetup</a> is January 5th</li>
-        <li class="fragment">Thanks to Tonight's Sponsor:<br>
-        <img style="border: none; width: 300px;" src="http://epionhealth.com/wp-content/uploads/2014/05/EpionHealthLogo-2001.jpg" />
-        </li>
-        <li class="fragment">Keep the conversation going over drinks at Wicked Wolf</li>
-        </ul>
+          <h3>Right Ratio when Testing</h3>
+          <p>E2E tests = more setup and take longer to run. Usually only cover a single "Happy Path"</p>
+          <p>Unit tests = run faster. Usually cover all edge cases. (ex - all combinations to check a password's validity)
+          </p>
+          <img style="width: 50%" src="/images/testing-pyramid.png" />
         </section>
 
         <section>
-        <h2>Have a great night!</h2>
+          <h3>Testing Tools</h3>
+          <ul>
+            <li class="fragment">Karma - Node app that starts a web server to load your code and run your tests</li>
+            <li class="fragment">Jasmine - framework that provides functions to help with structuring your tests and also making assertions</li>
+            <li class="fragment">Chai - offers various ways of checking things in test cases</li>
+            <li class="fragment">Sinon - standalone test spies, stubs and mocks (allows to better isolate your code)</li>
+          </ul>
         </section>
 
-  </div>
+        <section>
+          <h3>Test Driven Development</h3>
+          <p>There are different philosophies of when to write your tests and there is a lot of love and push back for TDD.</p>
+          <img style="float: left; width: 40%" src="/images/no-TDD_vs_TDD.jpg" />
+          <img style="float: right; width: 40%" src="/images/death-of-tdd.jpg" />
+        </section>
 
-  </div>
+        <section>
+          <h3>TDD in Action</h3>
+          <p>Red, Green, Refactor. Write a failing test first, then only write enough code for your test to pass and turn green. Refactor your code and make sure the test stays green.</p>
+          <img style="width: 60%" src="/images/tdd-flow.png" />
+        </section>
+
+        <section>
+          <h3>Continouous Integration</h3>
+          <p>Automated build process that uses an application's test suite to catch errors before deploying.</p>
+          <img style="width: 60%" src="/images/continous-integration.png" />
+        </section>
+
+        <section>
+          <img style="width: 80%" src="/images/dangerously.jpg" />
+        </section>
+      </div>
+    </div>
 
       <script src="lib/js/head.min.js"></script>
       <script src="js/reveal.min.js"></script>
